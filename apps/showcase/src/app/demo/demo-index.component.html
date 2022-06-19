@@ -1,0 +1,67 @@
+<showcase-layout-toolbar-menu position="left">
+  <button class="menu-button" mat-button (click)="toggleSidenav()">
+    <mat-icon>menu</mat-icon>
+  </button>
+</showcase-layout-toolbar-menu>
+<showcase-layout-toolbar-menu position="right">
+  <mat-slide-toggle
+    color="accent"
+    [(ngModel)]="isEditMode"
+    (change)="toggleEdit($event)"
+  >
+    Edit!
+  </mat-slide-toggle>
+</showcase-layout-toolbar-menu>
+<mat-sidenav-container>
+  <mat-sidenav
+    #sidenav
+    mode="side"
+    [opened]="sidenavIsOpen"
+    (openedChange)="onSidenavChange()"
+  >
+    <mat-form-field class="search">
+      <input
+        matInput
+        type="text"
+        placeholder="Search"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="search()"
+      />
+      <button
+        mat-button
+        *ngIf="searchTerm"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="clearSearch()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-nav-list>
+      <ng-container *ngFor="let cat of categories">
+        <h3 matSubheader>{{ cat }}</h3>
+        <ng-container *ngFor="let route of $any(routes)[cat]">
+          <a
+            *ngIf="route"
+            mat-list-item
+            [routerLink]="'/demo/' + (isEditMode ? '/edit/' : '') + route.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{
+              _routerLinkActiveWakeUpHack_: isEditMode
+            }"
+            #exampleLink
+          >
+            {{ route.data.label }}
+          </a>
+        </ng-container>
+        <mat-divider></mat-divider>
+      </ng-container>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </mat-sidenav-content>
+</mat-sidenav-container>

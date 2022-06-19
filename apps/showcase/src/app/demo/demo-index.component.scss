@@ -1,0 +1,37 @@
+@use '~@angular/material' as mat;
+
+:host,
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+}
+
+mat-sidenav {
+  width: 345px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+mat-nav-list {
+  overflow-y: auto;
+}
+
+mat-sidenav-container {
+  flex: 1;
+}
+
+.content {
+  height: 100%;
+}
+
+mat-form-field.search {
+  width: 100%;
+  margin-bottom: -1.25em;
+}
+
+a.active {
+  color: white;
+  background-color: mat.get-color-from-palette(mat.define-palette(mat.$indigo-palette)) !important;
+}
