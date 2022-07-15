@@ -5,6 +5,7 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
+  Optional,
   Output,
   SimpleChanges,
 } from '@angular/core';
@@ -15,10 +16,11 @@ import {
   MapLayerMouseEvent,
   MapLayerTouchEvent,
 } from 'mapbox-gl';
-import { fromEvent, Subscription } from 'rxjs';
+import { fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, mapTo, startWith, switchMap } from 'rxjs/operators';
 import { MapService, SetupLayer } from '../map/map.service';
 import { LayerEvents } from '../map/map.types';
+import { SourceService } from '../source/source.service';
 import { deprecationWarning } from '../utils';
 
 @Component({
@@ -122,7 +124,7 @@ export class LayerComponent
   private layerAdded = false;
   private sub: Subscription;
 
-  constructor(private mapService: MapService) {}
+  constructor(private mapService: MapService, @Optional() private sourceService: SourceService) {}
 
   ngOnInit() {
     this.warnDeprecatedOutputs();
@@ -136,7 +138,19 @@ export class LayerComponent
           )
         )
       )
-      .subscribe((bindEvents: boolean) => this.init(bindEvents));
+      .subscribe((bindEvents: boolean) => {
+        /**
+         * if have sourceService, means layser component is in source component, layer should init itself after source has been added
+         */
+        if(this.sourceService) {
+          this.sourceService.listenBinding().subscribe(sourceId => {
+            this.source = sourceId
+            this.init(bindEvents)
+          })
+        } else {
+          this.init(bindEvents)
+        }
+      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -178,7 +192,16 @@ export class LayerComponent
     }
   }
 
+  /**
+   * https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/
+   * Name of a source description to be used for this layer. Required for all layer types except background.
+   * @param bindEvents 
+   */
   private init(bindEvents: boolean) {
+    if(this.type !== 'background' && this.source === undefined) {
+      throw new Error(`if the layer type is not background, the source is required.
+      MapBox Doc: https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/`)
+    }
     const layer: SetupLayer = {
       layerOptions: {
         id: this.id,

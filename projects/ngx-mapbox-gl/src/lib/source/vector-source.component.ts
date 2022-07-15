@@ -1,21 +1,27 @@
 import {
+  AfterContentInit,
   ChangeDetectionStrategy,
   Component,
+  ContentChildren,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  QueryList,
   SimpleChanges,
 } from '@angular/core';
 import { VectorSource, VectorSourceImpl } from 'mapbox-gl';
 import { fromEvent, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { LayerComponent } from '../layer/layer.component';
 import { MapService } from '../map/map.service';
+import { SourceService } from './source.service';
 
 @Component({
   selector: 'mgl-vector-source',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [SourceService]
 })
 export class VectorSourceComponent
   implements OnInit, OnDestroy, OnChanges, VectorSource {
@@ -34,10 +40,12 @@ export class VectorSourceComponent
 
   type: VectorSource['type'] = 'vector';
 
+  @ContentChildren(LayerComponent) layerComponents = new QueryList<LayerComponent>()
+
   private sourceAdded = false;
   private sub = new Subscription();
 
-  constructor(private mapService: MapService) {}
+  constructor(private mapService: MapService, public sourceService: SourceService) {}
 
   ngOnInit() {
     const sub1 = this.mapService.mapLoaded$.subscribe(() => {
@@ -81,6 +89,9 @@ export class VectorSourceComponent
 
       if (changes.tiles && this.tiles) {
         source.setTiles(this.tiles);
+        if(changes.tiles.previousValue === undefined) {
+          this.sourceService.startBind(this.id)
+        }
       }
     }
   }
@@ -107,5 +118,10 @@ export class VectorSourceComponent
     };
     this.mapService.addSource(this.id, source);
     this.sourceAdded = true;
+  }
+
+  private setTiles = (tiles: string[]): void => {
+    const source = this.mapService.getSource<VectorSourceImpl>(this.id);
+    source.setTiles(tiles)
   }
 }
