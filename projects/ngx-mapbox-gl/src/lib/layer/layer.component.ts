@@ -143,10 +143,11 @@ export class LayerComponent
          * if have sourceService, means layser component is in source component, layer should init itself after source has been added
          */
         if(this.sourceService) {
-          this.sourceService.listenBinding().subscribe(sourceId => {
+          const sub1 = this.sourceService.listenBinding().subscribe(sourceId => {
             this.source = sourceId
             this.init(bindEvents)
           })
+          this.sub.add(sub1)
         } else {
           this.init(bindEvents)
         }
