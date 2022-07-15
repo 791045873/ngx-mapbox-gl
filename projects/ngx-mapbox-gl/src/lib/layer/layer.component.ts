@@ -16,7 +16,7 @@ import {
   MapLayerMouseEvent,
   MapLayerTouchEvent,
 } from 'mapbox-gl';
-import { fromEvent, Observable, Subscription } from 'rxjs';
+import { fromEvent, Subscription } from 'rxjs';
 import { filter, mapTo, startWith, switchMap } from 'rxjs/operators';
 import { MapService, SetupLayer } from '../map/map.service';
 import { LayerEvents } from '../map/map.types';

@@ -9,7 +9,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { fromEvent, Subscription } from 'rxjs';
+import { fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, startWith, switchMap } from 'rxjs/operators';
 import { MapService } from '../map/map.service';
 import { MapImageData, MapImageOptions } from '../map/map.types';
@@ -26,7 +26,7 @@ export class ImageComponent implements OnInit, OnDestroy, OnChanges {
   /* Dynamic inputs */
   @Input() data?: MapImageData;
   @Input() options?: MapImageOptions;
-  @Input() url?: string;
+  @Input() url?: string | Observable<string>;
 
   @Output() imageError = new EventEmitter<{ status: number }>();
   @Output() imageLoaded = new EventEmitter<void>();
@@ -83,27 +83,35 @@ export class ImageComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private async init() {
+  private init() {
     this.isAdding = true;
     if (this.data) {
       this.mapService.addImage(this.id, this.data, this.options);
       this.isAdded = true;
       this.isAdding = false;
-    } else if (this.url) {
-      try {
-        await this.mapService.loadAndAddImage(this.id, this.url, this.options);
-        this.isAdded = true;
-        this.isAdding = false;
-        this.zone.run(() => {
-          this.imageLoaded.emit();
-          this.loaded.emit();
-        });
-      } catch (error: any) {
-        this.zone.run(() => {
-          this.imageError.emit(error);
-          this.error.emit(error);
-        });
-      }
+    } else if (typeof this.url === 'string') {
+      this.loadImgByUrl(this.url)
+    } else {
+      this.url?.subscribe(url => {
+        this.loadImgByUrl(url)
+      })
+    }
+  }
+
+  private async loadImgByUrl(url: string) {
+    try {
+      await this.mapService.loadAndAddImage(this.id, url, this.options);
+      this.isAdded = true;
+      this.isAdding = false;
+      this.zone.run(() => {
+        this.imageLoaded.emit();
+        this.loaded.emit();
+      });
+    } catch (error: any) {
+      this.zone.run(() => {
+        this.imageError.emit(error);
+        this.error.emit(error);
+      });
     }
   }
 
