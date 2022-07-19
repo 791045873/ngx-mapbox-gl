@@ -9,7 +9,48 @@
  * managementLineOption: 管理线
  * protectLineOption: 保护线
  */
-export const qqslLayerOptions = {
+
+import { FillPaint, LineLayout, LinePaint, SymbolLayout, SymbolPaint } from "mapbox-gl"
+
+interface IQqslLayerOptions {
+  defaultRiverOption: {
+    type: 'line',
+    layout: LineLayout,
+    paint: LinePaint
+  },
+  riverChannelOption: {
+    type: 'line',
+    paint: LinePaint
+  },
+  riverAreaOption: {
+    type: 'fill',
+    paint: FillPaint
+  },
+  riverBankOption: {
+    type: 'line',
+    paint: LinePaint
+  },
+  highlightLineOption: {
+    type: 'line',
+    paint: LinePaint
+  },
+  lineNameOption: {
+    type: 'symbol',
+    layout: SymbolLayout,
+    paint: SymbolPaint
+  },
+  managementLineOption: {
+    type: 'line',
+    layout: LineLayout,
+    paint: LinePaint
+  },
+  protectLineOption: {
+    type: 'line',
+    layout: LineLayout,
+    paint: LinePaint
+  }
+}
+export const qqslLayerOptions: IQqslLayerOptions = {
   defaultRiverOption: {
     type: 'line',
     layout: {
