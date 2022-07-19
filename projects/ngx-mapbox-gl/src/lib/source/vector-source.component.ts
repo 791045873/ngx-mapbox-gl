@@ -1,5 +1,4 @@
 import {
-  AfterContentInit,
   ChangeDetectionStrategy,
   Component,
   ContentChildren,
@@ -118,10 +117,5 @@ export class VectorSourceComponent
     };
     this.mapService.addSource(this.id, source);
     this.sourceAdded = true;
-  }
-
-  private setTiles = (tiles: string[]): void => {
-    const source = this.mapService.getSource<VectorSourceImpl>(this.id);
-    source.setTiles(tiles)
   }
 }
