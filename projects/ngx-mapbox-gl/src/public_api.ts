@@ -37,3 +37,6 @@ export * from './lib/map/map.types';
 
 // Expose deprecation warning
 export * from './lib/utils';
+
+// Expose layerOption for qqsl
+export * from './lib/layer/options'

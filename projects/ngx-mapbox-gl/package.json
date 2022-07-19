@@ -1,11 +1,11 @@
 {
-  "name": "ngx-mapbox-gl",
-  "version": "8.0.1",
+  "name": "qqsl-ngx-mapbox-gl",
+  "version": "0.0.1",
   "description": "A Angular binding of mapbox-gl-js",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Wykks/ngx-mapbox-gl.git"
+    "url": "https://github.com/791045873/ngx-mapbox-gl.git"
   },
   "keywords": [
     "mapbox",
@@ -16,9 +16,9 @@
     "ngx"
   ],
   "bugs": {
-    "url": "https://github.com/Wykks/ngx-mapbox-gl/issues"
+    "url": "https://github.com/791045873/ngx-mapbox-gl/issues"
   },
-  "homepage": "https://github.com/Wykks/ngx-mapbox-gl#readme",
+  "homepage": "https://github.com/791045873/ngx-mapbox-gl#readme",
   "peerDependencies": {
     "@angular/common": "13.x",
     "@angular/core": "13.x",

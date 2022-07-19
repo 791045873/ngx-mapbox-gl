@@ -16,11 +16,13 @@ import {
 import { fromEvent, Subject, Subscription } from 'rxjs';
 import { debounceTime, filter } from 'rxjs/operators';
 import { MapService } from '../../map/map.service';
+import { SourceService } from '../source.service';
 
 @Component({
   selector: 'mgl-geojson-source',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [SourceService]
 })
 export class GeoJSONSourceComponent
   implements OnInit, OnDestroy, OnChanges, GeoJSONSourceOptions
@@ -50,7 +52,7 @@ export class GeoJSONSourceComponent
   private sourceAdded = false;
   private featureIdCounter = 0;
 
-  constructor(private mapService: MapService, private zone: NgZone) {}
+  constructor(private mapService: MapService, private zone: NgZone, private sourceService: SourceService) {}
 
   ngOnInit() {
     if (!this.data) {
@@ -230,5 +232,8 @@ export class GeoJSONSourceComponent
     });
     this.sub.add(sub);
     this.sourceAdded = true;
+    if(!this.sourceService.hasBindSource()) {
+      this.sourceService.startBind(this.id)
+    }
   }
 }
