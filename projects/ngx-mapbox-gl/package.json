@@ -1,6 +1,6 @@
 {
   "name": "qqsl-ngx-mapbox-gl",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "A Angular binding of mapbox-gl-js",
   "license": "MIT",
   "repository": {

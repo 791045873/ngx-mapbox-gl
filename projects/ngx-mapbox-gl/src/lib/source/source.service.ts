@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { AsyncSubject, Observable } from "rxjs";
+import { Observable, ReplaySubject } from "rxjs";
 
 @Injectable()
 export class SourceService {
-  private bindLayerToSource = new AsyncSubject<string>()
+  private bindLayerToSource = new ReplaySubject<string>()
 
   /**
    * used by source.component, notify the project content(layer.component), they can add layer to map with the new sourceId

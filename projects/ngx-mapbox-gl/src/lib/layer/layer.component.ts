@@ -16,8 +16,8 @@ import {
   MapLayerMouseEvent,
   MapLayerTouchEvent,
 } from 'mapbox-gl';
-import { fromEvent, Subscription } from 'rxjs';
-import { filter, mapTo, startWith, switchMap } from 'rxjs/operators';
+import { fromEvent, Subscription, zip } from 'rxjs';
+import { filter, map, mapTo, startWith, switchMap } from 'rxjs/operators';
 import { MapService, SetupLayer } from '../map/map.service';
 import { LayerEvents } from '../map/map.types';
 import { SourceService } from '../source/source.service';
@@ -128,7 +128,28 @@ export class LayerComponent
 
   ngOnInit() {
     this.warnDeprecatedOutputs();
-    this.sub = this.mapService.mapLoaded$
+    if(this.sourceService) {
+      this.sub = zip([this.sourceService.listenBinding(), this.mapService.mapLoaded$])
+      .pipe(
+        switchMap(([sourceId, _]) =>
+          fromEvent(this.mapService.mapInstance as any, 'styledata').pipe(
+            mapTo({
+              sourceId,
+              bindEvents: false
+            }),
+            filter(() => !this.mapService.mapInstance.getLayer(this.id)),
+            startWith({
+              sourceId,
+              bindEvents: true
+            })
+          )
+        )
+      ).subscribe(({ sourceId, bindEvents }) => {
+        this.source = sourceId
+        this.init(bindEvents)
+      })
+    } else {
+      this.sub = this.mapService.mapLoaded$
       .pipe(
         switchMap(() =>
           fromEvent(this.mapService.mapInstance as any, 'styledata').pipe(
@@ -139,19 +160,10 @@ export class LayerComponent
         )
       )
       .subscribe((bindEvents: boolean) => {
-        /**
-         * if have sourceService, means layser component is in source component, layer should init itself after source has been added
-         */
-        if(this.sourceService) {
-          const sub1 = this.sourceService.listenBinding().subscribe(sourceId => {
-            this.source = sourceId
-            this.init(bindEvents)
-          })
-          this.sub.add(sub1)
-        } else {
-          this.init(bindEvents)
-        }
+        this.init(bindEvents)
       });
+    }
+    
   }
 
   ngOnChanges(changes: SimpleChanges) {
