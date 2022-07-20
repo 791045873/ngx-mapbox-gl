@@ -61,9 +61,12 @@ export class VectorSourceComponent
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.sourceAdded) {
+      if(changes.tiles && !changes.tiles.isFirstChange() && changes.tiles.previousValue === undefined) {
+        // 如果tiles第一次从undefined改变至有值，则初始化。（tiles无值时不可初始化）
+        this.init()
+      }
       return;
     }
-
     if (
       (changes.bounds && !changes.bounds.isFirstChange()) ||
       (changes.scheme && !changes.scheme.isFirstChange()) ||
@@ -85,12 +88,9 @@ export class VectorSourceComponent
       if (changes.url && this.url) {
         source.setUrl(this.url);
       }
-
+      // 只有在tile有值的情况下才可以初始化
       if (changes.tiles && this.tiles) {
         source.setTiles(this.tiles);
-        if(changes.tiles.previousValue === undefined) {
-          this.sourceService.startBind(this.id)
-        }
       }
     }
   }
@@ -104,6 +104,9 @@ export class VectorSourceComponent
   }
 
   private init() {
+    if(!this.tiles) {
+      return
+    }
     const source: VectorSource = {
       type: this.type,
       url: this.url,
@@ -116,6 +119,9 @@ export class VectorSourceComponent
       promoteId: this.promoteId,
     };
     this.mapService.addSource(this.id, source);
+    // init与tiles同步，避免异步问题
+    // 如果init时存在tiles，则证明tiles已经被设置，需要通知layer同步绑定。否则则通过ngOnChange生命周期处理layer的异步绑定
+    this.sourceService.startBind(this.id)
     this.sourceAdded = true;
   }
 }

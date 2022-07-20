@@ -7,12 +7,10 @@ export class SourceService {
 
   /**
    * used by source.component, notify the project content(layer.component), they can add layer to map with the new sourceId
-   * this function only can be used once
    * @param sourceId 
    */
   startBind = (sourceId: string):void => {
     this.bindLayerToSource.next(sourceId)
-    this.bindLayerToSource.complete()
   }
 
   /**

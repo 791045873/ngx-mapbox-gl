@@ -16,8 +16,8 @@ import {
   MapLayerMouseEvent,
   MapLayerTouchEvent,
 } from 'mapbox-gl';
-import { fromEvent, Subscription, zip } from 'rxjs';
-import { filter, mapTo, startWith, switchMap } from 'rxjs/operators';
+import { combineLatest, fromEvent, Subscription } from 'rxjs';
+import { filter, map, startWith, switchMap } from 'rxjs/operators';
 import { MapService, SetupLayer } from '../map/map.service';
 import { LayerEvents } from '../map/map.types';
 import { SourceService } from '../source/source.service';
@@ -129,21 +129,13 @@ export class LayerComponent
   ngOnInit() {
     this.warnDeprecatedOutputs();
     if(this.sourceService) {
-      this.sub = zip([this.sourceService.listenBinding(), this.mapService.mapLoaded$])
+      this.sub = combineLatest([this.sourceService.listenBinding(), this.mapService.mapLoaded$])
       .pipe(
-        switchMap(([sourceId, _]) =>
-          fromEvent(this.mapService.mapInstance as any, 'styledata').pipe(
-            mapTo({
-              sourceId,
-              bindEvents: false
-            }),
-            filter(() => !this.mapService.mapInstance.getLayer(this.id)),
-            startWith({
-              sourceId,
-              bindEvents: true
-            })
-          )
-        )
+        map(([sourceId, _], index) => ({
+          sourceId,
+          bindEvents: index === 0
+        })),
+        filter(() => !this.mapService.mapInstance.getLayer(this.id)),
       ).subscribe(({ sourceId, bindEvents }) => {
         this.source = sourceId
         this.init(bindEvents)
@@ -153,7 +145,7 @@ export class LayerComponent
       .pipe(
         switchMap(() =>
           fromEvent(this.mapService.mapInstance as any, 'styledata').pipe(
-            mapTo(false),
+            map(() => false),
             filter(() => !this.mapService.mapInstance.getLayer(this.id)),
             startWith(true)
           )
